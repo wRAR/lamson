@@ -60,7 +60,7 @@ S_WORD = lambda x, token:  ['word', token]
 S_EMAIL_ADDR = lambda x, token:  ['email', token]
 S_OPTION = lambda x, token:  ['option', token.split("-")[-1]]
 S_INT = lambda x, token:  ['int', int(token) ]
-S_BOOL = lambda x, token:  ['bool', bool(token) ]
+S_BOOL = lambda x, token:  ['bool', token == "True" ]
 S_EMPTY = lambda x, token:  ['empty', '']
 S_STRING = lambda x, token:  ['string', token]
 S_TRAILING = lambda x, token:  ['trailing', None]
@@ -74,7 +74,7 @@ SCANNER = re.Scanner([
     (r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}", S_EMAIL_ADDR),
     (r"[0-9]+\.[0-9]+\.[0-9]+\.[0-9]", S_IP_ADDRESS),
     (r"-+[a-zA-Z0-9]+", S_OPTION),
-    (r"True", S_BOOL),
+    (r"True|False", S_BOOL),
     (r"[0-9]+", S_INT),
     (r"--", S_TRAILING),
     (r"[a-z\-]+", S_WORD),
