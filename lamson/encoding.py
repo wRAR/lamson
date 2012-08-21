@@ -207,7 +207,10 @@ class MIMEPart(MIMEBase):
                 self.add_header('Content-Disposition', cdisp, **cdisp_params)
 
             self.set_payload(mail.body)
-            encoders.encode_base64(self)
+            if ctype == "message/rfc822":
+                encoders.encode_7or8bit(self)
+            else:
+                encoders.encode_base64(self)
 
     def __repr__(self):
         return "<MIMEPart '%s/%s': %r, %r, multipart=%r>" % (self.subtype, self.maintype, self['Content-Type'],
