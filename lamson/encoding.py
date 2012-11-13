@@ -413,7 +413,7 @@ def attempt_decoding(charset, dec):
             return dec.decode(charset)
     except UnicodeError:
         # looks like the charset lies, try to detect it
-        return guess_encoding_and_decode(charset, dec)
+        return guess_encoding_and_decode(charset, dec, 'replace')
     except LookupError:
         # they gave a crap encoding
         return guess_encoding_and_decode(charset, dec)
