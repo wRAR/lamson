@@ -468,7 +468,6 @@ def _scan(data):
 
         yield left, enc_header, enc_data, continued
 
-
 def _parse_charset_header(data):
     scanner = _scan(data)
     oddness = None
@@ -481,14 +480,16 @@ def _parse_charset_header(data):
                 left, enc_header, enc_data, continued = oddness
                 oddness = None
 
+            to_decode = [enc_data]
+
             while continued:
                 l, eh, ed, continued = scanner.next()
-               
+
                 if not eh:
                     assert not ed, "Parsing error, give Zed this: %r" % data
                     oddness = (" " + l.lstrip(), eh, ed, continued)
                 elif eh[0] == enc_header[0] and eh[1] == enc_header[1]:
-                    enc_data += ed
+                    to_decode.append(ed)
                 else:
                     # odd case, it's continued but not from the same base64
                     # need to stack this for the next loop, and drop the \n\s+
@@ -497,9 +498,10 @@ def _parse_charset_header(data):
 
             if left:
                 yield attempt_decoding('ascii', left)
-                       
+
             if enc_header:
-                yield apply_charset_to_header(enc_header[0], enc_header[1], enc_data)
+                for d in to_decode:
+                    yield apply_charset_to_header(enc_header[0], enc_header[1], d)
 
     except StopIteration:
         pass
