@@ -66,7 +66,7 @@ project as a test case.
 """
 
 import string
-from email.charset import Charset
+from email.Header import Header
 import chardet
 import re
 import email
@@ -76,7 +76,6 @@ from email.utils import parseaddr
 import sys
 
 
-DEFAULT_ENCODING = "utf-8"
 DEFAULT_ERROR_HANDLING = "strict"
 CONTENT_ENCODING_KEYS = set(['Content-Type', 'Content-Transfer-Encoding',
                              'Content-Disposition', 'Mime-Version'])
@@ -345,7 +344,7 @@ def decode_message_body(mail, message):
             pass
 
 
-def properly_encode_header(value, encoder, not_email):
+def properly_encode_header(value, not_email):
     """
     The only thing special (weird) about this function is that it tries
     to do a fast check to see if the header value has an email address in
@@ -364,19 +363,18 @@ def properly_encode_header(value, encoder, not_email):
         if not_email is False and VALUE_IS_EMAIL_ADDRESS(value):
             # this could have an email address, make sure we don't screw it up
             name, address = parseaddr(value)
-            return '"%s" <%s>' % (encoder.header_encode(name.encode("utf-8")), address)
+            return '"%s" <%s>' % (str(Header(name, "utf-8")), address)
 
-        return encoder.header_encode(value.encode("utf-8"))
+        return str(Header(value, "utf-8"))
 
 
 def header_to_mime_encoding(value, not_email=False):
     if not value: return ""
 
-    encoder = Charset(DEFAULT_ENCODING)
     if type(value) == list:
-        return "; ".join(properly_encode_header(v, encoder, not_email) for v in value)
+        return "; ".join(properly_encode_header(v, not_email) for v in value)
     else:
-        return properly_encode_header(value, encoder, not_email)
+        return properly_encode_header(value, not_email)
 
 
 def header_from_mime_encoding(header):
